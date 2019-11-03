@@ -8,6 +8,12 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <div>
+            <div className="topnav">
+                <a className="navlink" href="/home">Home</a>
+                <a className="navlink" href="/home_mentor">My Mentors</a>
+                <a className="navlink" href="/home_mentee">My Mentees</a>
+                <a className="navlink" href="/login">Login</a>
+            </div>
           <Main/>
         </div>
       </BrowserRouter>

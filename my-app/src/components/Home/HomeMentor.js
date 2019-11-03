@@ -1,82 +1,169 @@
-import React, { Component } from "react";
-import { Link } from "react-router-dom";
-import cookie from "react-cookies";
-import { Redirect } from "react-router";
-import SearchField from "react-search-field";
+import React, {Component} from "react";
+import "../../App.css";
 import axios from "axios";
-import { relative } from "path";
+import {connect} from 'react-redux';
+import {hostedAddress} from "../../GlobalVar"
+import cookie from "react-cookies";
+import {Redirect} from "react-router";
 import Dropdown from "react-dropdown";
-import { hostedAddress } from "../../GlobalVar";
+import MenteeWaitlistDisplay from "../Presentational/MenteeWaitlistDisplay";
 
-let doneSearchFlag = false,
-    searchVal = null;
-//create the Landing Component
-class HomeMentor extends Component {
+class Preference extends Component {
     constructor(props) {
         super(props);
-        this.state = { searchResponse: [], searchVal: "" };
+        this.state = {
+            authFlag: false,
+            menteeList: null,
+            appointment: "NA",
+            mentor_email: ""
+        };
+        this.arrangeMeetup = this.arrangeMeetup.bind(this);
+        this.messageChangeHandler = this.messageChangeHandler.bind(this);
     }
-    searchChangeHandler = e => {
+
+    componentWillMount() {
+        let emailID = cookie.load('email');
+        const data = {
+            mentor_email: emailID
+        };
         this.setState({
-            searchVal: e.target.value
+            authFlag: false,
+            mentor_email: emailID
+        });
+
+        // this.setState({
+        //     authFlag: true,
+        //     //mentorList: response.mentorList
+        //     mentorList: [{
+        //         name: 'Adam',
+        //         email: 'pe@gmail.com',
+        //         pref: [{key: 'Age', value: '34'}, {key: 'Industry', value: 'Finance'}],
+        //         profile: [{key: 'Age', value: '34'}, {key: 'Industry', value: 'Finance'}]
+        //     }, {
+        //         name: 'Ben',
+        //         email: 'pp@gmail.com',
+        //         pref: [{key: 'Gender', value: 'Male'}, {key: 'Interest', value: 'Soccer'}],
+        //         profile: [{key: 'Age', value: '34'}, {key: 'Industry', value: 'Finance'}]
+        //     }]
+        // });
+
+        var authorization = localStorage.getItem('bearer-token')
+        console.log("authorization", authorization)
+        axios.defaults.withCredentials = true;//very imp
+        axios.post(hostedAddress + ":3001/getConnectRequest", data, {headers: {'Authorization': authorization}})
+            .then(response => {
+                console.log("Status Code : ", response);
+                console.log(response.data[0].connect)
+                if (response.status === 200 && response.data[0].connect) {
+                    this.setState({
+                        authFlag: true,
+                        menteeList: response.data[0].connect
+                        //mentorList: [{name:'Adam', age:'3'}, {name:'Ben', age:'34'}, {name:'Sean', age:'37'}]
+                    });
+                    console.log(JSON.stringify(this.state.menteeList))
+                } else if (response.status === 201 && response.data != "exists" && response.data != "error") {
+                    console.log("new mentee created-");
+                    console.log(cookie.load('cookie'));
+                    this.setState({
+                        authFlag: true
+                    });
+                } else {
+                    alert("Invalid");
+                }
+            })
+            .catch(response => {
+                    alert("Invalid");
+                    this.setState({
+                        authFlag: false
+                    });
+                }
+            )
+    }
+
+    arrangeMeetup = (email) => {
+        var e = document.getElementById(email);
+        e.style.display = 'block';
+    };
+
+    submitRequest = (connectId, response) => {
+        const data = {
+            mentor_email: this.state.mentor_email,
+            appointment: this.state.appointment,
+            connectStatus: response,
+            connectId: connectId
+        };
+        console.log('data is ', JSON.stringify(data))
+        var authorization=localStorage.getItem('bearer-token')
+        axios.defaults.withCredentials = true;//very imp
+        axios.post(hostedAddress + ":3001/setConnectRequest", data, {headers:{'Authorization':authorization}})
+            .then(response => {
+                console.log("Status Code : ", response);
+                if (response.status === 200 ) {
+                    this.setState({
+                        authFlag: true
+                    });
+                    alert('request sent!')
+                } else {
+                    alert("Invalid");
+                }
+                window.location.reload()
+            })
+            .catch(response => {
+                    alert("Invalid");
+                    this.setState({
+                        authFlag: false
+                    });
+                }
+            )
+
+    };
+
+    messageChangeHandler = e => {
+        this.setState({
+            appointment: e.target.value
         });
     };
-    // searchFunction = () => {
-    //   // console.log(this.search.state.value);
-    //   searchVal = this.search.state.value;
-    //   let data = { search: searchVal };
-    //   axios.defaults.withCredentials = true; //very imp, sets credentials so that backend can load cookies
-    //   axios.post(hostedAddress + ":3001/search", data).then(response => {
-    //     this.setState({ searchResponse: response.data });
-    //     // console.log(doneSearchFlag);
-    //   });
-    //   doneSearchFlag = true;
-    // };
 
     render() {
-        let redirectVar = <Redirect to="/home_cust" />;
-        let redirectSearchResult = null;
-        if (doneSearchFlag) {
-            console.log(this.state.searchResponse);
-            doneSearchFlag = false;
-
-        } else {
-            redirectSearchResult = null;
-        }
-        //if Cookie is set render Logout Button
-        if (cookie.load("cookie") != "customer") {
-            redirectVar = <Redirect to="/login" />;
-        }
         return (
             <div
-    class="maincust"
-        style={{ textAlign: "center", width: "200", height: "200" }}
-    >
-        {redirectVar}
-        {redirectSearchResult}
-    <h1 class="h1" style={{ textAlign: "center" }}>
-        Hello {cookie.load("name")}! Hungry?{" "}
-            <span style={{ fontSize: 40 }}>&#127827;</span>
-        </h1>
-
-        <div class="">
-            <div class="">
-            {/* <SearchField
-                ref={ref => (this.search = ref)}
-                placeholder="Search Food..."
-                onSearchClick={this.searchFunction}
-                classNames="test-class"/> */}
-            <input
-        type="text"
-        onChange={this.searchChangeHandler}
-        placeholder="Type your favourite food..."
-    class="test-class1"
-            />
+                className='dropdown-overlay default-pointer'>
+                <ul>
+                    {this.state.menteeList ? this.state.menteeList.map((item, key) => (
+                        <ul
+                            key={key}
+                            role='presentation'>
+                            <div style={{display: "flex"}}>
+                                <div style={{display: "flex", "border-style": "solid", "margin": "30px", "padding": "30px", "width": "300px", "border-radius": "25px", "background-color": "#d5f4e6" }}>
+                                    <MenteeWaitlistDisplay item={item} />
+                                    <button onClick={() => this.arrangeMeetup(item.mentee_email)} className="btn btn-primary" style={{height: "20px", "margin-top": "auto", "margin-bottom": "auto", "margin-left": "50px"}}>
+                                        Accept
+                                    </button>
+                                    <button onClick={() => this.submitRequest(item.connectId, 'Reject')} className="btn btn-primary" style={{height: "20px", "margin-top": "auto", "margin-bottom": "auto", "margin-left": "50px"}}>
+                                        Decline
+                                    </button>
+                                </div>
+                                <div style={{ display: 'none', "margin-top": "auto", "margin-bottom": "auto", "padding-left": "50px" }} id={item.mentee_email}>
+                                    <input
+                                        ref={ref => (this.messageToMentee = ref)}
+                                        type="text"
+                                        className="form-control"
+                                        name="messageToMentee"
+                                        placeholder="Schedule a meetup with your mentee"
+                                        style={{ height: "200px", "margin-top": "auto", "margin-bottom": "auto", "width":"300px" }}
+                                        onChange={this.messageChangeHandler}
+                                    />
+                                    <button onClick={() => this.submitRequest(item.connectId,'Accept')} className="btn btn-primary" style={{height: "20px", "margin-left": "10px"}}>
+                                        Send
+                                    </button>
+                                </div>
+                            </div>
+                        </ul>
+                    )) : 'No matches found'}
+                </ul>
             </div>
-            </div>
-            </div>
-    );
+        );
     }
 }
 
-export default HomeMentor;
+export default (Preference);

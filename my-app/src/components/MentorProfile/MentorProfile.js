@@ -6,32 +6,39 @@ import axios from 'axios';
 import {hostedAddress} from "../../GlobalVar"
 let img_src=null;
 //create the Landing Component
-class MenteeProfile extends Component {
+class MentorProfile extends Component {
     constructor(props){
         super(props);
         this.state={
-            email:"",
-            firstName:"",
+            email: "",
+            username: "",
+            password: "",
+            authFlag: false,
+            userOption: "",
+            firstName: "",
             lastName: "",
-            userOption:"",
-            homeCity: "",
-            workCity: "",
-            ethnicity: "",
-            profilePhoto: null,
+            homeCity: "", // dropdown
+            workCity: "", // dropdown
+            ethnicity: "", // dropdown
+            address: "",
+            profilePhoto: "",
             age: "",
             interest: "",
-            gender: "",
-            industry: "",
-            personalities: "",
+            gender: "", // dropdown
+            industry: "", // dropdown
+            personalities: "", // dropdown
             adviceCategory: "",
-            skillSets: [], // checkbox
-            media: "",
+            skillSets: new Map(), // dropdown
+            media: "", // dropdown
             placeToMeet: "",
-            communities: [], // checkbox
+            communities: new Map(),
             expectations: "",
             linkedinProfile: "",
-            phone:"",
-            address:""
+            employer: "",
+            jobTitle: "",
+            mentoringReason: "",
+            mentoringExperience: "",
+            educationLevel: ""
         };
     }
     componentWillMount=()=>
@@ -43,35 +50,40 @@ class MenteeProfile extends Component {
         img_src=hostedAddress+':3001/'+cookie.load('idGeneric')+'.jpg'
         console.log('ayaa1');
         axios.defaults.withCredentials = true;//very imp, sets credentials so that backend can load cookies
-        axios.post(hostedAddress+':3001/getProfileMentee',data, {params:{},headers:{'Authorization':token, 'Accept':'application/json','Content-Type':'application/json'}})
+        axios.post(hostedAddress+':3001/getProfileMentor',data, {params:{},headers:{'Authorization':token, 'Accept':'application/json','Content-Type':'application/json'}})
             .then((response) => {
                 console.log('getProfileMentee' + JSON.stringify(response));
                 // console.log(response.data[0]);
                 this.setState({
-                    email:response.data[0].mentee_email,
-                    firstName:response.data[0].mentee_firstName,
-                    lastName:response.data[0].mentee_lastName,
-                    phone:response.data[0].mentee_phone,
-                    homeCity:response.data[0].mentee_homeCity,
-                    workCity:response.data[0].mentee_workCity,
-                    ethnicity:response.data[0].mentee_ethnicity,
-                    profilePhoto:response.data[0].mentee_profilePhoto,
-                    interest: response.data[0].mentee_interest,
-                    industry: response.data[0].mentee_industry,
-                    personalities: response.data[0].mentee_personalities,
-                    adviceCategory: response.data[0].mentee_adviceCategory,
-                    age: response.data[0].mentee_age,
+                    email:response.data[0].mentor_email,
+                    firstName:response.data[0].mentor_firstName,
+                    lastName:response.data[0].mentor_lastName,
+                    phone:response.data[0].mentor_phone,
+                    homeCity:response.data[0].mentor_homeCity,
+                    workCity:response.data[0].mentor_workCity,
+                    ethnicity:response.data[0].mentor_ethnicity,
+                    profilePhoto:response.data[0].mentor_profilePhoto,
+                    interest: response.data[0].mentor_interest,
+                    age: response.data[0].mentor_age,
+                    industry: response.data[0].mentor_industry,
+                    personalities: response.data[0].mentor_personalities,
+                    adviceCategory: response.data[0].mentor_adviceCategory,
                     skillSets: response.data[0].mentor_skillSets, // checkbox
-                    media: response.data[0].mentee_media,
-                    placeToMeet: response.data[0].mentee_placeToMeet,
-                    communities: response.data[0].mentee_communities, // checkbox
-                    expectations: response.data[0].mentee_expectations,
-                    linkedinProfile: response.data[0].mentee_linkedinProfile,
-                    address:response.data[0].mentee_addess
+                    media: response.data[0].mentor_media,
+                    placeToMeet: response.data[0].mentor_placeToMeet,
+                    communities: response.data[0].mentor_communities, // checkbox
+                    expectations: response.data[0].mentor_expectations,
+                    linkedinProfile: response.data[0].mentor_linkedinProfile,
+                    address:response.data[0].mentor_addess,
+                    employer: response.data[0].mentor_employer,
+                    jobTitle: response.data[0].mentor_jobTitle,
+                    mentoringReason: response.data[0].mentor_mentoringReason,
+                    mentoringExperience: response.data[0].mentor_mentoringExperience,
+                    educationLevel: response.data[0].mentor_educationLevel
                 });
             })
             .catch(()=>{console.log("error")});
-    }
+    };
     render(){
         let redirectVar = null;
         // if(cookie.load('cookie')!='mentee'){
@@ -153,10 +165,10 @@ class MenteeProfile extends Component {
                     </tbody>
                 </table>
                 <div>
-                    <a href='/update_mentee_profile' class="btn btn-primary" style={{background:  '#ED2E38',borderColor: '#ED2E38',color: 'white'}}>Update</a>
+                    <a href='/update_mentor_profile' class="btn btn-primary" style={{background:  '#ED2E38',borderColor: '#ED2E38',color: 'white'}}>Update</a>
                 </div>
             </div>
         )
     }
 }
-export default (MenteeProfile);
+export default (MentorProfile);

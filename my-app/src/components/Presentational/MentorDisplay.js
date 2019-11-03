@@ -4,19 +4,27 @@ import PropTypes from 'prop-types'
 const MentorDisplay = ({item}) => (
     <div>
         <h3>{item.name}</h3>
-        <h4>{item.email}</h4>
-        <p>Matched Preference</p>
+        <h4>Email: {item.email}</h4>
+        <p style={{ color: 'blue' }}>Matched Preference</p>
         {
-            item.pref.map((item, key) => (
-
+            item.pref.map((param, key) => (
                 <li
                     key={key}
                     role='presentation'>
-                    {item.key} {item.value}
+                    {param.key}: {param.value}
                 </li>
             ))
         }
-        <p>Matched Profile</p>
+        <p style={{ color: 'blue' }}>Profile Preference</p>
+        {
+            item.profile.map((param, key) => (
+                <li
+                    key={key}
+                    role='presentation'>
+                    {param.key}: {param.value}
+                </li>
+            ))
+        }
     </div>
 )
 

@@ -70,7 +70,8 @@ class Login extends Component {
 
       const cookies = new Cookies();
       cookies.set('email', this.state.email, { path: '/' });
-      console.log(cookies.get('email'));
+      console.log(cookies.get('cookie'));
+      cookies.set('cookie', this.state.userOptions, { path: '/' });
 
         axios.post(hostedAddress + ":3001/login", data)
             .then(response => {
@@ -112,9 +113,9 @@ class Login extends Component {
     render() {
         if (!cookie.load('cookie')) {
             redirectVar = <Redirect to="/login"/>
-        } else if (cookie.load('cookie') == 'mentor') {
+        } else if (cookie.load('cookie').value == 'Mentor') {
             redirectVar = <Redirect to="/home_mentor"/>
-        } else if (cookie.load('cookie') == 'mentee') {
+        } else if (cookie.load('cookie').value == 'Mentee') {
             redirectVar = <Redirect to="/home_mentee"/>
         }
         return (
